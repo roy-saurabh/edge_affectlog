@@ -4,6 +4,7 @@ Session management — create, validate, revoke.
 Sessions are stored in DB with hashed tokens.
 The token is kept in an HttpOnly cookie client-side.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -74,9 +75,7 @@ async def revoke_session(db: AsyncSession, token: str) -> None:
     digest = hashlib.sha256(token.encode()).hexdigest()
     now = datetime.now(UTC)
     await db.execute(
-        update(Session)
-        .where(Session.session_token_hash == digest)
-        .values(revoked_at=now)
+        update(Session).where(Session.session_token_hash == digest).values(revoked_at=now)
     )
 
 

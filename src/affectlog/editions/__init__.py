@@ -10,6 +10,7 @@ Feature flags are resolved from:
   2. Tenant-level overrides (managed mode)
   3. Platform-admin overrides
 """
+
 from affectlog.editions.features import COMMUNITY_DEFAULTS, MANAGED_DEFAULTS, Feature
 from affectlog.editions.gates import FeatureGate, requires_feature
 

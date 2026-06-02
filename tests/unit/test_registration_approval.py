@@ -2,6 +2,7 @@
 Tests for registration and onboarding workflow.
 Uses in-memory SQLite for speed.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -29,6 +30,7 @@ async def db():
 @pytest.mark.asyncio
 async def test_create_pending_registration_no_active_user(db: AsyncSession):
     from affectlog.auth.registration import create_pending_registration
+
     reg = await create_pending_registration(
         db,
         full_name="Jane Researcher",

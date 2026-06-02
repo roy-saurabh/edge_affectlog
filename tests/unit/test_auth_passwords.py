@@ -1,4 +1,5 @@
 """Tests for password hashing and verification."""
+
 from affectlog.auth.password import hash_password, needs_rehash, verify_password
 
 

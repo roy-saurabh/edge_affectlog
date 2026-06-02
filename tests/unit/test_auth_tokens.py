@@ -1,4 +1,5 @@
 """Tests for token generation, hashing, and expiry."""
+
 from datetime import UTC, datetime, timedelta
 
 from affectlog.auth.tokens import (

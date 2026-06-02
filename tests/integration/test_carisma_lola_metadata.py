@@ -2,6 +2,7 @@
 Tests for CARiSMA and LOLA interoperability metadata exchange.
 Validates schemas, export construction, and import parsing.
 """
+
 from affectlog.interoperability.carisma import (
     CARISMA_EXCHANGE_SCHEMA,
     CARISMA_SCHEMA_VERSION,

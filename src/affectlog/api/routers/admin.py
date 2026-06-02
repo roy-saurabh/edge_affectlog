@@ -2,6 +2,7 @@
 Admin API routes — pending registrations, user management, audit log, system health.
 All routes require admin permissions.
 """
+
 from __future__ import annotations
 
 import logging
@@ -54,6 +55,7 @@ _require_system = require_permission(P.SYSTEM_READ)
 
 
 # ── Pending Registrations ────────────────────────────────────────────────
+
 
 @router.get("/pending-registrations", response_model=list[PendingRegistrationOut])
 async def list_pending_registrations(
@@ -109,12 +111,16 @@ async def reject(
     actor: Any = Depends(_require_approve),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, str]:
-    reg_result = await db.execute(select(PendingRegistration).where(PendingRegistration.id == reg_id))
+    reg_result = await db.execute(
+        select(PendingRegistration).where(PendingRegistration.id == reg_id)
+    )
     reg = reg_result.scalar_one_or_none()
     if reg is None:
         raise HTTPException(status_code=404, detail="Not found.")
 
-    await reject_registration(db, registration_id=reg_id, approver=actor, admin_notes=body.admin_notes)
+    await reject_registration(
+        db, registration_id=reg_id, approver=actor, admin_notes=body.admin_notes
+    )
     await send_registration_rejected(reg.email, reg.full_name, body.admin_notes)
     return {"status": "rejected"}
 
@@ -126,7 +132,9 @@ async def request_more_info(
     _actor: Any = Depends(_require_approve),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, str]:
-    reg_result = await db.execute(select(PendingRegistration).where(PendingRegistration.id == reg_id))
+    reg_result = await db.execute(
+        select(PendingRegistration).where(PendingRegistration.id == reg_id)
+    )
     reg = reg_result.scalar_one_or_none()
     if reg is None:
         raise HTTPException(status_code=404, detail="Not found.")
@@ -148,13 +156,15 @@ async def request_more_info(
 
 # ── User Management ───────────────────────────────────────────────────────
 
+
 @router.get("/users", response_model=list[AdminUserOut])
 async def list_users(
     _actor: Any = Depends(_require_user_manage),
     db: AsyncSession = Depends(get_db),
 ) -> list[AdminUserOut]:
     result = await db.execute(
-        select(User).options(selectinload(User.user_roles).selectinload(UserRole.role))
+        select(User)
+        .options(selectinload(User.user_roles).selectinload(UserRole.role))
         .order_by(User.created_at.desc())
     )
     users = result.scalars().all()
@@ -192,7 +202,9 @@ async def disable_user(
         raise HTTPException(status_code=403, detail="Cannot disable superadmin.")
     user.is_active = False
     await db.flush()
-    await log_event(db, "admin.user.disabled", actor_id=actor.id, resource_type="user", resource_id=str(user_id))
+    await log_event(
+        db, "admin.user.disabled", actor_id=actor.id, resource_type="user", resource_id=str(user_id)
+    )
     return {"status": "disabled"}
 
 
@@ -241,7 +253,8 @@ async def assign_roles(
 
     await db.flush()
     await log_event(
-        db, "admin.user.roles_assigned",
+        db,
+        "admin.user.roles_assigned",
         actor_id=actor.id,
         resource_type="user",
         resource_id=str(user_id),
@@ -252,6 +265,7 @@ async def assign_roles(
 
 # ── Audit Log ─────────────────────────────────────────────────────────────
 
+
 @router.get("/audit-log", response_model=list[AuditLogEntryOut])
 async def get_audit_log(
     limit: int = Query(100, le=1000),
@@ -260,15 +274,13 @@ async def get_audit_log(
     db: AsyncSession = Depends(get_db),
 ) -> list[AuditLogEntry]:
     result = await db.execute(
-        select(AuditLogEntry)
-        .order_by(AuditLogEntry.logged_at.desc())
-        .limit(limit)
-        .offset(offset)
+        select(AuditLogEntry).order_by(AuditLogEntry.logged_at.desc()).limit(limit).offset(offset)
     )
     return list(result.scalars().all())
 
 
 # ── Email / System ─────────────────────────────────────────────────────────
+
 
 @router.get("/email/templates")
 async def list_email_templates(
@@ -292,6 +304,7 @@ async def test_email(
     _actor: Any = Depends(_require_system),
 ) -> dict[str, str]:
     from affectlog.core.email import send_email
+
     await send_email(
         to=to,
         subject="[TEST] AffectLog email test",
@@ -319,6 +332,7 @@ async def system_health(
 
 
 # ── Workspaces ─────────────────────────────────────────────────────────────
+
 
 @router.get("/workspaces", response_model=list[WorkspaceOut])
 async def list_workspaces(

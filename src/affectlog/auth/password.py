@@ -4,6 +4,7 @@ Password hashing with Argon2id via argon2-cffi.
 Policy: minimum 12 characters enforced at schema validation level.
 Never store plaintext passwords; pepper is mixed in before hashing.
 """
+
 from __future__ import annotations
 
 import hashlib

@@ -18,6 +18,7 @@ Usage:
             q = q.where(Dataset.tenant_id == tenant_id)
         ...
 """
+
 from __future__ import annotations
 
 import uuid
@@ -46,6 +47,7 @@ async def get_tenant_id(
     # Lazy import to avoid circular deps when tenancy models aren't migrated
     try:
         from affectlog.tenancy.models import TenantMembership
+
         result = await db.execute(
             select(TenantMembership)
             .where(TenantMembership.user_id == current_user.id)

@@ -4,6 +4,7 @@ Managed Edition runtime assertions and helpers.
 Provides guard utilities for code paths that are only valid when running
 as a managed/multi-tenant deployment.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -23,7 +24,9 @@ def assert_managed(message: str = "This operation requires Managed Edition.") ->
 
 def managed_only(fn: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator that raises RuntimeError if not in managed/enterprise mode."""
+
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         assert_managed()
         return fn(*args, **kwargs)
+
     return wrapper

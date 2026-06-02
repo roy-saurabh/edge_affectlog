@@ -7,6 +7,7 @@ model explainability, EU AI Act / GDPR compliance, authentication, RBAC,
 admin-approved registration, CARiSMA/LOLA interoperability.
 Part of Prometheus-X BB04 / EDGE-Skills.
 """
+
 from __future__ import annotations
 
 import logging

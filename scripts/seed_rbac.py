@@ -7,6 +7,7 @@ Usage:
     # or via Makefile:
     make seed
 """
+
 from __future__ import annotations
 
 import asyncio

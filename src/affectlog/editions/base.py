@@ -5,6 +5,7 @@ Reads AFFECTLOG_EDITION from environment (community | managed | enterprise_priva
 Provides get_feature() to resolve whether a feature is active, merging:
   edition defaults → platform-level override (future) → tenant-level override.
 """
+
 from __future__ import annotations
 
 import os

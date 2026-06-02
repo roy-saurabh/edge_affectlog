@@ -1,4 +1,5 @@
 """Tests for RBAC permission constants and role defaults."""
+
 from affectlog.auth.permissions import ALL_PERMISSIONS, ROLE_DEFAULTS, P
 
 

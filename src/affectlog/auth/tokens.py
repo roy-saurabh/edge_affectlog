@@ -5,6 +5,7 @@ Activation tokens expire in 24 h.
 Password-reset tokens expire in 30 min.
 All tokens are stored as SHA-256 hashes; plaintext is emailed once.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -25,12 +26,14 @@ def hash_token(plain: str) -> str:
 
 def activation_expiry() -> datetime:
     from affectlog.config import get_settings
+
     ttl = get_settings().activation_token_ttl_seconds
     return datetime.now(UTC) + timedelta(seconds=ttl)
 
 
 def password_reset_expiry() -> datetime:
     from affectlog.config import get_settings
+
     ttl = get_settings().password_reset_token_ttl_seconds
     return datetime.now(UTC) + timedelta(seconds=ttl)
 

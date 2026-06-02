@@ -11,6 +11,7 @@ This module:
   - Provides a schema for the metadata exchange format.
   - Does NOT execute CARiSMA directly; it produces import-ready artifacts.
 """
+
 from __future__ import annotations
 
 from datetime import UTC
@@ -40,7 +41,10 @@ CARISMA_EXCHANGE_SCHEMA: dict[str, Any] = {
         "auditSummary": {
             "type": "object",
             "properties": {
-                "privacyRiskLevel": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+                "privacyRiskLevel": {
+                    "type": "string",
+                    "enum": ["low", "medium", "high", "critical"],
+                },
                 "piiFieldsDetected": {"type": "integer"},
                 "pseudonymisationApplied": {"type": "boolean"},
                 "rowCount": {"type": "integer"},

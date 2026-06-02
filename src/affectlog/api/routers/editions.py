@@ -6,6 +6,7 @@ No authentication required.
   GET  /api/public/cloud
   POST /api/public/request-managed-access
 """
+
 from __future__ import annotations
 
 import logging
@@ -91,16 +92,16 @@ async def editions_info() -> dict[str, Any]:
             "managed": mode in ("managed", "enterprise_private"),
         },
         "features": {
-            "multi_tenant":    defaults.get(Feature.MULTI_TENANT, False),
+            "multi_tenant": defaults.get(Feature.MULTI_TENANT, False),
             "managed_backups": defaults.get(Feature.MANAGED_BACKUPS, False),
-            "support_access":  defaults.get(Feature.SUPPORT_ACCESS, False),
-            "enterprise_sso":  defaults.get(Feature.ENTERPRISE_SSO, False),
+            "support_access": defaults.get(Feature.SUPPORT_ACCESS, False),
+            "enterprise_sso": defaults.get(Feature.ENTERPRISE_SSO, False),
         },
         "links": {
             "community_edition": "https://github.com/roy-saurabh/edge_affectlog",
-            "managed_edition":   "/cloud",
-            "request_access":    "/request-access",
-            "prometheus_x":      "https://prometheus-x.org/bb04-trustworthy-ai-assessment/",
+            "managed_edition": "/cloud",
+            "request_access": "/request-access",
+            "prometheus_x": "https://prometheus-x.org/bb04-trustworthy-ai-assessment/",
         },
     }
 
@@ -148,6 +149,7 @@ async def request_managed_access(
         await _verify_recaptcha(body.recaptcha_token, remote_ip, settings.recaptcha_contact_action)
     try:
         from affectlog.tenancy.models import ManagedAccessRequest
+
         req = ManagedAccessRequest(
             name=body.name,
             email=str(body.email),

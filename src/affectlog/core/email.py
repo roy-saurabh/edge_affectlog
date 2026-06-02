@@ -4,6 +4,7 @@ Email sending via aiosmtplib (async SMTP).
 Supports Gmail SMTP with App Passwords, or Mailpit for local dev.
 When EMAIL_SEND_ENABLED=false, emails are logged to console.
 """
+
 from __future__ import annotations
 
 import logging
@@ -57,9 +58,7 @@ async def send_email(
     html, plain = _render(template, context)
 
     if not settings.email_send_enabled:
-        logger.info(
-            "[EMAIL DISABLED] To=%s Subject=%s template=%s", to, subject, template
-        )
+        logger.info("[EMAIL DISABLED] To=%s Subject=%s template=%s", to, subject, template)
         if context.get("activation_url"):
             logger.info("DEV activation URL: %s", context["activation_url"])
         return False
@@ -155,7 +154,9 @@ async def send_password_reset(to: str, full_name: str, reset_token: str) -> bool
     )
 
 
-async def send_admin_new_registration(admin_email: str, registrant_name: str, registrant_email: str) -> bool:
+async def send_admin_new_registration(
+    admin_email: str, registrant_name: str, registrant_email: str
+) -> bool:
     settings = get_settings()
     return await send_email(
         to=admin_email,

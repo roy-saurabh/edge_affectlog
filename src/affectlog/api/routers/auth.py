@@ -1,6 +1,7 @@
 """
 Auth API routes — login, logout, me, change-password, MFA scaffold.
 """
+
 from __future__ import annotations
 
 import logging
@@ -48,12 +49,12 @@ async def login(
             user.failed_login_count += 1
             if user.failed_login_count >= settings.max_failed_logins:
                 from datetime import timedelta
-                user.locked_until = datetime.now(UTC) + timedelta(
-                    seconds=settings.lockout_seconds
-                )
+
+                user.locked_until = datetime.now(UTC) + timedelta(seconds=settings.lockout_seconds)
             await db.flush()
             await log_event(
-                db, "auth.login.failed",
+                db,
+                "auth.login.failed",
                 actor_email=body.email,
                 resource_type="user",
                 resource_id=str(user.id) if user else None,
@@ -64,7 +65,9 @@ async def login(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail)
 
     if user is None:
-        await log_event(db, "auth.login.unknown_email", actor_email=body.email, ip_address=ip, success=False)
+        await log_event(
+            db, "auth.login.unknown_email", actor_email=body.email, ip_address=ip, success=False
+        )
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
     if not user.is_active:
@@ -82,13 +85,18 @@ async def login(
     user.failed_login_count = 0
     user.locked_until = None
     user.last_login_at = datetime.now(UTC)
-    token = await create_session(db, user, ip_address=ip, user_agent=request.headers.get("user-agent"))
+    token = await create_session(
+        db, user, ip_address=ip, user_agent=request.headers.get("user-agent")
+    )
     await db.flush()
 
     await log_event(
-        db, "auth.login.success",
-        actor_id=user.id, actor_email=user.email,
-        resource_type="user", resource_id=str(user.id),
+        db,
+        "auth.login.success",
+        actor_id=user.id,
+        actor_email=user.email,
+        resource_type="user",
+        resource_id=str(user.id),
         ip_address=ip,
     )
 
@@ -163,9 +171,12 @@ async def change_password(
     user.must_change_password = False
     await db.flush()
     await log_event(
-        db, "auth.password.changed",
-        actor_id=user.id, actor_email=user.email,
-        resource_type="user", resource_id=str(user.id),
+        db,
+        "auth.password.changed",
+        actor_id=user.id,
+        actor_email=user.email,
+        resource_type="user",
+        resource_id=str(user.id),
     )
     return {"status": "ok"}
 
@@ -174,6 +185,7 @@ async def change_password(
 async def mfa_setup(user: User = Depends(get_current_user)) -> dict[str, str]:
     """Scaffold: returns TOTP secret for setup. Full TOTP not yet enforced in this release."""
     import pyotp
+
     secret = pyotp.random_base32()
     totp = pyotp.TOTP(secret)
     provisioning_uri = totp.provisioning_uri(name=user.email, issuer_name="AffectLog")
@@ -189,6 +201,7 @@ async def mfa_verify(
     if not user.mfa_secret:
         raise HTTPException(status_code=400, detail="MFA not set up.")
     import pyotp
+
     totp = pyotp.TOTP(user.mfa_secret)
     if not totp.verify(code):
         raise HTTPException(status_code=400, detail="Invalid MFA code.")

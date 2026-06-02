@@ -6,6 +6,7 @@ Usage:
     async def endpoint(user = Depends(require_permission(P.DATASETS_UPLOAD))):
         ...
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable

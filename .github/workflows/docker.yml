@@ -20,7 +20,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          dockerfile: Dockerfile
+          file: Dockerfile
           push: false
           tags: affectlog/api:${{ github.sha }}
           cache-from: type=gha
@@ -30,7 +30,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          dockerfile: Dockerfile.worker
+          file: Dockerfile.worker
           push: false
           tags: affectlog/worker:${{ github.sha }}
           cache-from: type=gha
@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: src/affectlog/frontend
-          dockerfile: src/affectlog/frontend/Dockerfile.frontend
+          file: src/affectlog/frontend/Dockerfile.frontend
           push: false
           tags: affectlog/frontend:${{ github.sha }}
           cache-from: type=gha

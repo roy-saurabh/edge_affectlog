@@ -1,4 +1,5 @@
 """Generic metadata exchange utilities for ecosystem interoperability."""
+
 from __future__ import annotations
 
 from datetime import UTC
@@ -13,6 +14,7 @@ def build_exchange_envelope(
 ) -> dict[str, Any]:
     """Wrap a metadata payload in a standard exchange envelope."""
     from datetime import datetime
+
     return {
         "envelopeVersion": "1.0",
         "source": source,

@@ -1,6 +1,7 @@
 """
 Registration workflow — create PendingRegistration, emit notification.
 """
+
 from __future__ import annotations
 
 import logging
@@ -33,6 +34,7 @@ async def create_pending_registration(
     )
     if existing.scalar_one_or_none():
         from fastapi import HTTPException, status
+
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="A registration request with this email already exists.",
@@ -41,6 +43,7 @@ async def create_pending_registration(
     active_user = await db.execute(select(User).where(User.email == email))
     if active_user.scalar_one_or_none():
         from fastapi import HTTPException, status
+
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="An account with this email already exists.",

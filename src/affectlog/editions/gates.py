@@ -11,6 +11,7 @@ Usage:
     ):
         ...
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -43,10 +44,12 @@ def requires_feature(feature: str) -> Any:
     FastAPI dependency that raises 403 if the named feature is not enabled.
     Tenant-level override resolution is not yet wired here (future: inject tenant context).
     """
+
     def _dep() -> None:
         if not get_feature(feature):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Feature '{feature}' is not available in this edition.",
             )
+
     return Depends(_dep)

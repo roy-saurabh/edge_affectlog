@@ -2,6 +2,7 @@
 Public API routes — registration, password reset, activation, config.
 No authentication required.
 """
+
 from __future__ import annotations
 
 import logging
@@ -97,11 +98,13 @@ async def password_reset_request(
 
     if user is not None:
         plain, digest = generate_token()
-        db.add(PasswordResetToken(
-            user_id=user.id,
-            token_hash=digest,
-            expires_at=password_reset_expiry(),
-        ))
+        db.add(
+            PasswordResetToken(
+                user_id=user.id,
+                token_hash=digest,
+                expires_at=password_reset_expiry(),
+            )
+        )
         await db.flush()
         await send_password_reset(user.email, user.full_name, plain)
 
@@ -125,12 +128,15 @@ async def password_reset_confirm(
     if token is None or is_expired(token.expires_at):
         raise HTTPException(status_code=400, detail="Invalid or expired reset token.")
 
-    user_result = await db.execute(select(User).where(User.id == token.user_id, User.is_active == True))  # noqa: E712
+    user_result = await db.execute(
+        select(User).where(User.id == token.user_id, User.is_active == True)  # noqa: E712
+    )
     user = user_result.scalar_one_or_none()
     if user is None:
         raise HTTPException(status_code=400, detail="Invalid token.")
 
     from affectlog.auth.password import hash_password
+
     user.hashed_password = hash_password(body.new_password)
     user.must_change_password = False
     token.used_at = datetime.now(UTC)

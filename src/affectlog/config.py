@@ -1,4 +1,5 @@
 """Central configuration using pydantic-settings."""
+
 from __future__ import annotations
 
 from functools import lru_cache
@@ -104,6 +105,7 @@ class Settings(BaseSettings):
     def warn_empty_hash_secret(cls, v: str) -> str:
         if not v:
             import warnings
+
             warnings.warn(
                 "AFFECTLOG_HASH_SECRET is not set — using empty string. "
                 "Set a strong secret in production.",
@@ -117,6 +119,7 @@ class Settings(BaseSettings):
     def warn_empty_secret_key(cls, v: str) -> str:
         if not v:
             import warnings
+
             warnings.warn(
                 "AFFECTLOG_SECRET_KEY is not set — sessions are insecure. "
                 "Set a strong random secret in production.",

@@ -13,6 +13,7 @@ Design invariants:
   - All grant creation, use, and revocation events are written to TenantAuditLog.
   - Break-glass procedures are documented but not enabled by default.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -92,7 +93,9 @@ async def revoke_support_grant(
     if not grant:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Grant not found.")
     if grant.status == "revoked":
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Grant already revoked.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Grant already revoked."
+        )
 
     grant.status = "revoked"
     grant.revoked_at = datetime.now(tz=UTC)

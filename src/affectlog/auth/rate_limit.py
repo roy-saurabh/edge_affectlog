@@ -3,6 +3,7 @@ Rate limiting using slowapi (limits library).
 
 Limits are configurable via settings and applied per-IP.
 """
+
 from __future__ import annotations
 
 from slowapi import Limiter

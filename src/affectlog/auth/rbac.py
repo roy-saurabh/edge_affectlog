@@ -1,6 +1,7 @@
 """
 RBAC helpers — load user permissions from DB and check them.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -22,9 +23,9 @@ async def get_user_permissions(db: AsyncSession, user_id: uuid.UUID) -> set[str]
         select(UserRole)
         .where(UserRole.user_id == user_id)
         .options(
-            selectinload(UserRole.role).selectinload(Role.role_permissions).selectinload(
-                RolePermission.permission
-            )
+            selectinload(UserRole.role)
+            .selectinload(Role.role_permissions)
+            .selectinload(RolePermission.permission)
         )
     )
     user_roles = result.scalars().all()
@@ -35,17 +36,13 @@ async def get_user_permissions(db: AsyncSession, user_id: uuid.UUID) -> set[str]
     return perms
 
 
-async def user_has_permission(
-    db: AsyncSession, user_id: uuid.UUID, permission: str
-) -> bool:
+async def user_has_permission(db: AsyncSession, user_id: uuid.UUID, permission: str) -> bool:
     perms = await get_user_permissions(db, user_id)
     return permission in perms
 
 
 async def get_user_role_names(db: AsyncSession, user_id: uuid.UUID) -> list[str]:
     result = await db.execute(
-        select(UserRole)
-        .where(UserRole.user_id == user_id)
-        .options(selectinload(UserRole.role))
+        select(UserRole).where(UserRole.user_id == user_id).options(selectinload(UserRole.role))
     )
     return [ur.role.name for ur in result.scalars().all()]

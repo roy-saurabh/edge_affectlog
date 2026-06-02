@@ -13,6 +13,7 @@ Environment:
     Set ADMIN_EMAIL and ADMIN_NAME env vars, or edit defaults below.
     Password will be prompted interactively.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -70,7 +71,9 @@ async def create_admin(email: str, full_name: str, password: str) -> None:
         await db.commit()
         print(f"✓ Superadmin created: {email}")
         print(f"  Full name: {full_name}")
-        print(f"  Login at: {os.environ.get('AFFECTLOG_APP_BASE_URL', 'http://localhost:3000')}/login")
+        print(
+            f"  Login at: {os.environ.get('AFFECTLOG_APP_BASE_URL', 'http://localhost:3000')}/login"
+        )
 
 
 async def main() -> None:

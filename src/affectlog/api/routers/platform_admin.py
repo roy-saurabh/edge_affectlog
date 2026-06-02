@@ -4,6 +4,7 @@ Platform Admin API — tenant management, usage, feature flags, support access.
 All routes require is_superadmin or Platform Operator role.
 These routes are gated behind the MULTI_TENANT feature flag.
 """
+
 from __future__ import annotations
 
 import logging
@@ -90,6 +91,7 @@ async def list_tenants(
     db: AsyncSession = Depends(get_db),
 ) -> list[Any]:
     from affectlog.tenancy.models import Tenant
+
     q = select(Tenant).order_by(Tenant.created_at.desc())
     if status_filter:
         q = q.where(Tenant.status == status_filter)
@@ -144,6 +146,7 @@ async def get_tenant(
     db: AsyncSession = Depends(get_db),
 ) -> Any:
     from affectlog.tenancy.models import Tenant
+
     result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
     tenant = result.scalar_one_or_none()
     if not tenant:
@@ -163,6 +166,7 @@ async def update_tenant(
     db: AsyncSession = Depends(get_db),
 ) -> Any:
     from affectlog.tenancy.models import Tenant
+
     result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
     tenant = result.scalar_one_or_none()
     if not tenant:
@@ -189,6 +193,7 @@ async def suspend_tenant(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, str]:
     from affectlog.tenancy.models import Tenant
+
     result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
     tenant = result.scalar_one_or_none()
     if not tenant:
@@ -212,6 +217,7 @@ async def activate_tenant(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, str]:
     from affectlog.tenancy.models import Tenant
+
     result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
     tenant = result.scalar_one_or_none()
     if not tenant:
@@ -238,6 +244,7 @@ async def list_tenant_feature_flags(
     db: AsyncSession = Depends(get_db),
 ) -> list[Any]:
     from affectlog.tenancy.models import TenantFeatureFlag
+
     result = await db.execute(
         select(TenantFeatureFlag).where(TenantFeatureFlag.tenant_id == tenant_id)
     )
@@ -256,6 +263,7 @@ async def set_tenant_feature_flag(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     from affectlog.tenancy.models import TenantFeatureFlag
+
     result = await db.execute(
         select(TenantFeatureFlag)
         .where(TenantFeatureFlag.tenant_id == tenant_id)
@@ -291,10 +299,9 @@ async def platform_usage(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     from affectlog.tenancy.models import UsageRecord
+
     period_filter = period or datetime.utcnow().strftime("%Y-%m")
-    result = await db.execute(
-        select(UsageRecord).where(UsageRecord.period_month == period_filter)
-    )
+    result = await db.execute(select(UsageRecord).where(UsageRecord.period_month == period_filter))
     records = result.scalars().all()
     return {
         "period": period_filter,
@@ -327,6 +334,7 @@ async def list_access_requests(
     db: AsyncSession = Depends(get_db),
 ) -> list[dict[str, Any]]:
     from affectlog.tenancy.models import ManagedAccessRequest
+
     q = select(ManagedAccessRequest).order_by(ManagedAccessRequest.created_at.desc())
     if status_filter:
         q = q.where(ManagedAccessRequest.status == status_filter)

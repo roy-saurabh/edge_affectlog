@@ -1,4 +1,5 @@
 """Tests that email templates render without errors."""
+
 from pathlib import Path
 
 import pytest
@@ -25,7 +26,11 @@ SAMPLE_CONTEXTS = {
         "activation_url": "http://localhost:3000/activate?token=abc123",
         "app_base_url": "http://localhost:3000",
     },
-    "registration_rejected": {"full_name": "Test User", "reason": None, "app_base_url": "http://localhost:3000"},
+    "registration_rejected": {
+        "full_name": "Test User",
+        "reason": None,
+        "app_base_url": "http://localhost:3000",
+    },
     "password_reset": {
         "full_name": "Test User",
         "reset_url": "http://localhost:3000/reset-password?token=xyz",

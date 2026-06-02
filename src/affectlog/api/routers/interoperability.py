@@ -4,6 +4,7 @@ Interoperability API — CARiSMA and LOLA metadata exchange endpoints.
 These endpoints are integration-ready stubs; full operational integration
 requires external CARiSMA / LOLA service configuration.
 """
+
 from __future__ import annotations
 
 from typing import Any

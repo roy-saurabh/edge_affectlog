@@ -1,6 +1,7 @@
 """
 Security audit logging — write immutable audit trail entries to DB.
 """
+
 from __future__ import annotations
 
 import uuid

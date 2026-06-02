@@ -12,6 +12,7 @@ This module:
   - Does NOT claim direct operational integration unless a LOLA service
     endpoint is explicitly configured.
 """
+
 from __future__ import annotations
 
 from datetime import UTC
@@ -116,7 +117,15 @@ def build_lola_export(
     if "long_tail_coverage" in metrics_raw:
         lola_metrics["long_tail_coverage"] = metrics_raw["long_tail_coverage"]
 
-    for key in ["ndcg", "precision_at_k", "recall_at_k", "hit_rate", "diversity", "novelty", "personalization"]:
+    for key in [
+        "ndcg",
+        "precision_at_k",
+        "recall_at_k",
+        "hit_rate",
+        "diversity",
+        "novelty",
+        "personalization",
+    ]:
         if key in metrics_raw:
             lola_metrics[key] = metrics_raw[key]
 
@@ -149,6 +158,8 @@ def parse_lola_results(results: dict[str, Any]) -> dict[str, Any]:
         "source": "lola",
         "scenarioId": results.get("scenarioId", ""),
         "algorithmId": results.get("algorithmId", ""),
-        "metrics": {k: v for k, v in results.get("metrics", {}).items() if k in SHARED_METRICS_VOCABULARY},
+        "metrics": {
+            k: v for k, v in results.get("metrics", {}).items() if k in SHARED_METRICS_VOCABULARY
+        },
         "rawResults": results,
     }

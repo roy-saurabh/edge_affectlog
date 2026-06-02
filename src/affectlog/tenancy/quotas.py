@@ -4,6 +4,7 @@ Tenant quota enforcement.
 Checks usage records against tenant quotas before allowing operations.
 Community Edition has no quota enforcement; quotas only apply in managed mode.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -23,6 +24,7 @@ async def check_audit_run_quota(tenant_id: uuid.UUID, db: AsyncSession) -> None:
 
     try:
         from affectlog.tenancy.models import TenantQuota, UsageRecord
+
         period = datetime.utcnow().strftime("%Y-%m")
 
         quota_res = await db.execute(select(TenantQuota).where(TenantQuota.tenant_id == tenant_id))
@@ -87,7 +89,8 @@ async def increment_usage(
                     "rows_processed": UsageRecord.rows_processed + rows_processed,
                     "jobs_run": UsageRecord.jobs_run + jobs_run,
                     "exports_generated": UsageRecord.exports_generated + exports_generated,
-                    "model_explanation_runs": UsageRecord.model_explanation_runs + model_explanation_runs,
+                    "model_explanation_runs": UsageRecord.model_explanation_runs
+                    + model_explanation_runs,
                     "api_calls": UsageRecord.api_calls + api_calls,
                 },
             )

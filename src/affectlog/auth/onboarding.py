@@ -2,6 +2,7 @@
 Admin-approval onboarding — approve/reject registrations, create active users,
 generate activation tokens.
 """
+
 from __future__ import annotations
 
 import logging
@@ -52,7 +53,10 @@ async def approve_registration(
     reg = reg_result.scalar_one_or_none()
     if reg is None:
         from fastapi import HTTPException
-        raise HTTPException(status_code=404, detail="Pending registration not found or already processed.")
+
+        raise HTTPException(
+            status_code=404, detail="Pending registration not found or already processed."
+        )
 
     # Create user (inactive until token activation)
     new_user = User(
@@ -82,11 +86,13 @@ async def approve_registration(
 
     # Create activation token
     plain, digest = generate_token()
-    db.add(ActivationToken(
-        user_id=new_user.id,
-        token_hash=digest,
-        expires_at=activation_expiry(),
-    ))
+    db.add(
+        ActivationToken(
+            user_id=new_user.id,
+            token_hash=digest,
+            expires_at=activation_expiry(),
+        )
+    )
 
     # Update registration record
     reg.status = "approved"
@@ -125,6 +131,7 @@ async def reject_registration(
     reg = reg_result.scalar_one_or_none()
     if reg is None:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=404, detail="Pending registration not found.")
 
     reg.status = "rejected"
@@ -153,6 +160,7 @@ async def activate_account(
     Token is consumed (marked used) and user is activated.
     """
     from affectlog.auth.tokens import hash_token, is_expired
+
     digest = hash_token(token_plain)
     token_result = await db.execute(
         select(ActivationToken).where(
@@ -163,18 +171,22 @@ async def activate_account(
     token = token_result.scalar_one_or_none()
     if token is None:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=400, detail="Invalid or already used activation token.")
     if is_expired(token.expires_at):
         from fastapi import HTTPException
+
         raise HTTPException(status_code=400, detail="Activation token has expired.")
 
     user_result = await db.execute(select(User).where(User.id == token.user_id))
     user = user_result.scalar_one_or_none()
     if user is None:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=404, detail="User not found.")
 
     from affectlog.auth.password import hash_password
+
     user.hashed_password = hash_password(new_password)
     user.is_active = True
     user.must_change_password = False
@@ -199,17 +211,20 @@ async def resend_activation(
 ) -> str:
     """Invalidate old tokens and generate a new activation token. Returns plaintext."""
     from sqlalchemy import update
+
     await db.execute(
         update(ActivationToken)
         .where(ActivationToken.user_id == user.id, ActivationToken.used_at.is_(None))
         .values(used_at=datetime.now(UTC))
     )
     plain, digest = generate_token()
-    db.add(ActivationToken(
-        user_id=user.id,
-        token_hash=digest,
-        expires_at=activation_expiry(),
-    ))
+    db.add(
+        ActivationToken(
+            user_id=user.id,
+            token_hash=digest,
+            expires_at=activation_expiry(),
+        )
+    )
     await db.flush()
     await log_event(
         db,
