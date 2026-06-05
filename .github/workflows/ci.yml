@@ -158,12 +158,12 @@ jobs:
       - run: npm run build
       - name: Serve and run E2E tests
         run: |
-          npx serve dist -p 3000 &
+          npx serve dist -p 3000 --single &
           sleep 3
-          npx playwright test ../../tests/e2e/navigation.spec.ts ../../tests/e2e/footer-links.spec.ts ../../tests/e2e/cta-links.spec.ts ../../tests/e2e/route-guards.spec.ts --reporter=line
+          npx playwright test ../../tests/e2e/navigation.spec.ts ../../tests/e2e/footer-links.spec.ts ../../tests/e2e/cta-links.spec.ts ../../tests/e2e/route-guards.spec.ts --reporter=html,line
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report
-          path: playwright-report/
+          path: src/affectlog/frontend/playwright-report/
           retention-days: 7

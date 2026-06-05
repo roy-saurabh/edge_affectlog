@@ -11,14 +11,6 @@ const PEERS = [
   { id: "export",   label: "Dashboard Export", sub: "JSON-LD / Artifact",   x: 210, y: 270, color: "#94a3b8" },
 ];
 
-const EDGE_LABELS = [
-  { from: "pdc",      label: "consent query" },
-  { from: "ptx",      label: "BB04 metadata" },
-  { from: "edge",     label: "compliance feed" },
-  { from: "registry", label: "adapter pull" },
-  { from: "export",   label: "artifact push" },
-];
-
 export function ConnectorInteroperabilityMap() {
   return (
     <div className="relative w-full select-none" style={{ height: "300px" }}>

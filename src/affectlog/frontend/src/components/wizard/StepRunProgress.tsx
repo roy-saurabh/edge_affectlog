@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle, XCircle, Loader, AlertTriangle, X } from "lucide-react";
+import { CheckCircle, XCircle, Loader, AlertTriangle } from "lucide-react";
 import clsx from "clsx";
 import type { WizardRunStatusResponse } from "../../api/wizard";
 import { getRunProgress } from "../../api/wizard";

@@ -1,9 +1,7 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Save, X } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import clsx from "clsx";
-
-import { WizardProgress, WIZARD_STEPS } from "./WizardProgress";
+import { WizardProgress } from "./WizardProgress";
 import { ContextualHelpPanel } from "./ContextualHelpPanel";
 import { WizardSummaryPanel } from "./WizardSummaryPanel";
 import { StepInputSource, type InputMode } from "./StepInputSource";
@@ -32,7 +30,6 @@ import {
   type WizardRunResponse,
   type WizardRunResultsResponse,
   type WizardPlan,
-  type ValidationIssue,
   type UserHints,
 } from "../../api/wizard";
 import { getDefaultPlotsForFormat } from "../../content/plotCatalog";

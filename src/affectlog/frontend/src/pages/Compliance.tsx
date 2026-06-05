@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShieldCheck, FileText, Download, CheckCircle2, AlertCircle, ChevronRight } from "lucide-react";
+import { ShieldCheck, FileText, Download, CheckCircle2, ChevronRight } from "lucide-react";
 import { getComplianceGraph, getAuditSop, listRuns } from "../api";
 
 const EU_AI_CHECKLIST = [
