@@ -79,13 +79,13 @@ app = FastAPI(
         "**Links:** "
         "[Prometheus-X BB04](https://prometheus-x.org/bb04-trustworthy-ai-assessment/) · "
         "[Technical docs](https://prometheus-x-association.github.io/docs/t-ai/) · "
-        "[GitHub](https://github.com/Prometheus-X-association/t-ai-affectlog)"
+        "[GitHub](https://github.com/roy-saurabh/edge_affectlog)"
     ),
     version=__version__,
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     contact={
         "name": "AffectLog / Prometheus-X",
-        "url": "https://github.com/Prometheus-X-association/t-ai-affectlog",
+        "url": "https://github.com/roy-saurabh/edge_affectlog",
     },
     lifespan=lifespan,
     openapi_version="3.1.0",

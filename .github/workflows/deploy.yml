@@ -1,0 +1,224 @@
+name: Deploy to Production (trustworthyai.affectlog.com)
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: production
+        type: choice
+        options: [production, staging]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/affectlog
+
+jobs:
+  # ── 1. Frontend build & lint ─────────────────────────────────────────────
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: src/affectlog/frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: src/affectlog/frontend
+        run: npm ci
+
+      - name: Type-check
+        working-directory: src/affectlog/frontend
+        run: npm run typecheck
+
+      - name: Build
+        working-directory: src/affectlog/frontend
+        env:
+          VITE_API_BASE_URL: ""          # empty = same-origin via nginx proxy
+          NODE_ENV: production
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: src/affectlog/frontend/dist
+          retention-days: 7
+
+  # ── 2. Backend tests ─────────────────────────────────────────────────────
+  backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+      - run: pytest tests/unit/ -v --tb=short -m "not slow"
+
+  # ── 3. Docker images ──────────────────────────────────────────────────────
+  docker:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      api_image:      ${{ steps.meta-api.outputs.tags }}
+      worker_image:   ${{ steps.meta-worker.outputs.tags }}
+      frontend_image: ${{ steps.meta-frontend.outputs.tags }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download frontend dist
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: src/affectlog/frontend/dist
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # API image
+      - name: Docker meta — API
+        id: meta-api
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_PREFIX }}-api
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha,prefix=sha-,format=short
+
+      - name: Build & push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.meta-api.outputs.tags }}
+          labels: ${{ steps.meta-api.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Worker image
+      - name: Docker meta — Worker
+        id: meta-worker
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_PREFIX }}-worker
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha,prefix=sha-,format=short
+
+      - name: Build & push Worker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.worker
+          push: true
+          tags: ${{ steps.meta-worker.outputs.tags }}
+          labels: ${{ steps.meta-worker.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Frontend image
+      - name: Docker meta — Frontend
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_PREFIX }}-frontend
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha,prefix=sha-,format=short
+
+      - name: Build & push Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: src/affectlog/frontend
+          file: src/affectlog/frontend/Dockerfile.frontend
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── 4. Deploy to trustworthyai.affectlog.com ─────────────────────────────
+  deploy:
+    name: Deploy to trustworthyai.affectlog.com
+    runs-on: ubuntu-latest
+    needs: [docker]
+    # Only run deployment from the canonical deployment repo — skip silently in
+    # forks and the official Prometheus-X upstream mirror.
+    if: github.repository == 'roy-saurabh/edge_affectlog'
+    permissions:
+      contents: read
+      packages: read
+    environment:
+      name: production
+      url: https://trustworthyai.affectlog.com
+    # Requires these secrets in the repository:
+    #   DEPLOY_SSH_KEY   — private key matching an authorized_key on DEPLOY_HOST
+    #   DEPLOY_HOST      — server IP or hostname (62.72.16.195)
+    #   DEPLOY_USER      — SSH username (root)
+    #   DEPLOY_PATH      — deployment directory (/opt/tai-affectlog)
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Authenticate with GHCR using the workflow token (valid for this run)
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+            # Pull new images (all three services in parallel)
+            docker compose pull --quiet
+
+            # Rolling restart — bring up new containers, remove old ones
+            docker compose up -d --remove-orphans --pull never
+
+            # Free dangling images from previous deploy to preserve disk space
+            # (VPS has limited storage — this is critical)
+            docker image prune -f
+
+            # Wait for API to finish startup (runs DB migrations on first boot)
+            echo "Waiting for services to be healthy..."
+            sleep 30
+
+            # Health check via HTTPS
+            curl -fsS --max-time 15 https://trustworthyai.affectlog.com/healthz \
+              || (echo "=== Container logs ===" && docker compose logs --tail=60 && exit 1)
+
+            echo "Deploy complete: $(date)"
