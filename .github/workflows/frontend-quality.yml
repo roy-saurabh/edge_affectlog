@@ -1,0 +1,48 @@
+name: Frontend Quality Gates
+
+on:
+  pull_request:
+    paths:
+      - "src/affectlog/frontend/**"
+  push:
+    branches: [main]
+    paths:
+      - "src/affectlog/frontend/**"
+
+jobs:
+  ia-validation:
+    name: Information Architecture Validation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/affectlog/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: src/affectlog/frontend/package-lock.json
+      - run: npm ci
+
+      - name: "Validate: routes registry"
+        run: npm run validate:routes
+
+      - name: "Validate: external link registry"
+        run: npm run validate:links
+
+      - name: "Validate: CTA registry"
+        run: npm run validate:ctas
+
+      - name: "Validate: navigation registries"
+        run: npm run validate:nav
+
+      - name: "Validate: docs links"
+        run: npm run validate:docs
+
+      - name: "Validate: sitemap"
+        run: npm run validate:sitemap
+
+      - name: "Summary"
+        if: success()
+        run: echo "✓ All information architecture validations passed"

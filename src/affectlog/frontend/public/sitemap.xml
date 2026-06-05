@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://affectlog.ai/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://affectlog.ai/product</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://affectlog.ai/guided-assessment</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://affectlog.ai/dataset-audit</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://affectlog.ai/model-assessment</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://affectlog.ai/compliance-exports</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://affectlog.ai/community</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://affectlog.ai/cloud</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://affectlog.ai/pricing</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://affectlog.ai/security</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://affectlog.ai/developers</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://affectlog.ai/docs</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://affectlog.ai/ecosystem</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://affectlog.ai/openapi</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://affectlog.ai/self-host</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://affectlog.ai/request-access</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+</urlset>

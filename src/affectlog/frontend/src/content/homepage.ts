@@ -10,7 +10,7 @@ export const hero = {
   primaryCta: { label: "Launch the Assessment Console", href: "/login" },
   secondaryCta: {
     label: "Contribute on GitHub",
-    href: "https://github.com/roy-saurabh/edge_affectlog",
+    href: "https://github.com/Prometheus-X-association/t-ai-affectlog",
     external: true,
   },
   tertiaryCta: {
@@ -205,25 +205,25 @@ export const developerCta = {
   heading: "Build reusable assessment recipes with us",
   body: "AffectLog is open source. Developers, researchers, auditors, and data-space operators can contribute dataset recipes, model adapters, privacy controls, metrics, dashboards, and interoperability connectors.",
   buttons: [
-    { label: "Read Contributor Guide", href: "/docs/contributing", external: false },
+    { label: "Read Contributor Guide", href: "/developers", external: false },
     {
       label: "Open GitHub Issues",
-      href: "https://github.com/roy-saurabh/edge_affectlog/issues",
+      href: "https://github.com/Prometheus-X-association/t-ai-affectlog/issues",
       external: true,
     },
     {
       label: "Create an Assessment Recipe",
-      href: "https://github.com/roy-saurabh/edge_affectlog/blob/main/CONTRIBUTING.md#assessment-recipes",
+      href: "https://github.com/Prometheus-X-association/t-ai-affectlog/blob/main/CONTRIBUTING.md",
       external: true,
     },
     {
       label: "Add a Model Adapter",
-      href: "https://github.com/roy-saurabh/edge_affectlog/blob/main/CONTRIBUTING.md#model-adapters",
+      href: "https://github.com/Prometheus-X-association/t-ai-affectlog/blob/main/CONTRIBUTING.md",
       external: true,
     },
     {
       label: "Review Security Policy",
-      href: "https://github.com/roy-saurabh/edge_affectlog/blob/main/SECURITY.md",
+      href: "https://github.com/Prometheus-X-association/t-ai-affectlog/security",
       external: true,
     },
   ],
@@ -233,11 +233,11 @@ export const finalCta = {
   heading: "Start a local privacy-preserving assessment",
   buttons: [
     { label: "Launch Console", href: "/login", external: false },
-    { label: "Run with Docker", href: "/docs/deployment", external: false },
+    { label: "Run with Docker", href: "/self-host", external: false },
     { label: "API Reference", href: "/openapi", external: false },
     {
       label: "Contribute",
-      href: "https://github.com/roy-saurabh/edge_affectlog",
+      href: "https://github.com/Prometheus-X-association/t-ai-affectlog",
       external: true,
     },
   ],
@@ -265,7 +265,7 @@ export const euFooter = {
     },
     {
       label: "GitHub Repository",
-      href: "https://github.com/roy-saurabh/edge_affectlog",
+      href: "https://github.com/Prometheus-X-association/t-ai-affectlog",
     },
     { label: "Prometheus-X", href: "https://prometheus-x.org/" },
   ],

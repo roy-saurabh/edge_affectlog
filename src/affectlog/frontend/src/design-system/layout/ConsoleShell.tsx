@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { ConsoleSidebar, type NavItem } from "./ConsoleSidebar";
+import { ConsoleSidebar } from "./ConsoleSidebar";
 import { ConsoleTopbar } from "./ConsoleTopbar";
 
 interface ConsoleShellProps {
-  nav: NavItem[];
   children: React.ReactNode;
   variant?: "app" | "admin";
   breadcrumbs?: { label: string; to?: string }[];
@@ -12,7 +11,6 @@ interface ConsoleShellProps {
 }
 
 export function ConsoleShell({
-  nav,
   children,
   variant = "app",
   breadcrumbs,
@@ -27,13 +25,11 @@ export function ConsoleShell({
       style={{ background: "#0B1224", color: "#F8FAFC" }}
     >
       <ConsoleSidebar
-        nav={nav}
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         variant={variant}
       />
 
-      {/* Main area */}
       <div className="flex-1 flex flex-col lg:ml-[220px] min-w-0">
         <ConsoleTopbar
           onMenuOpen={() => setMenuOpen(true)}

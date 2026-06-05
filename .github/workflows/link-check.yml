@@ -1,0 +1,62 @@
+name: Link Check
+
+on:
+  pull_request:
+    paths:
+      - "src/affectlog/frontend/src/links/**"
+      - "src/affectlog/frontend/src/navigation/**"
+      - "src/affectlog/frontend/src/routing/**"
+      - "src/affectlog/frontend/src/cta/**"
+  schedule:
+    # Weekly check for external link rot (Sundays at 02:00 UTC)
+    - cron: "0 2 * * 0"
+
+jobs:
+  internal-link-check:
+    name: Internal Link Registry Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/affectlog/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: src/affectlog/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run validate:routes
+      - run: npm run validate:links
+      - run: npm run validate:nav
+
+  external-link-check:
+    name: External Link Health Check
+    runs-on: ubuntu-latest
+    # Only on schedule — not on every PR (external links can be flaky)
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check external links
+        run: |
+          LINKS=(
+            "https://prometheus-x.org/"
+            "https://prometheus-x.org/bb04-trustworthy-ai-assessment/"
+            "https://prometheus-x-association.github.io/docs/t-ai/"
+            "https://github.com/Prometheus-X-association/t-ai-affectlog"
+            "https://github.com/Prometheus-X-association/t-ai-affectlog/issues"
+            "https://github.com/Prometheus-X-association/t-ai-affectlog/security"
+            "https://github.com/Prometheus-X-association/t-ai-affectlog/blob/main/CONTRIBUTING.md"
+            "https://github.com/Prometheus-X-association/t-ai-affectlog/blob/main/LICENSE"
+          )
+          FAILED=0
+          for url in "${LINKS[@]}"; do
+            STATUS=$(curl -sL -o /dev/null -w "%{http_code}" --max-time 10 "$url" || echo "000")
+            if [ "$STATUS" -ge 400 ] || [ "$STATUS" = "000" ]; then
+              echo "✗ FAILED ($STATUS): $url"
+              FAILED=1
+            else
+              echo "✓ OK ($STATUS): $url"
+            fi
+          done
+          exit $FAILED

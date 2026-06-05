@@ -1,93 +1,41 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ExternalLink, Github, ChevronDown, ArrowRight, Server, Cloud } from "lucide-react";
+import { ExternalLink as ExternalLinkIcon, ChevronDown, ArrowRight, Server } from "lucide-react";
 import { cn } from "../cn";
+import { FOOTER_NAV } from "../../navigation/footerNav";
+import { EXTERNAL_LINKS } from "../../links/externalLinks";
 
-const GITHUB = "https://github.com/roy-saurabh/edge_affectlog";
-const DOCS   = `${GITHUB}/blob/main/docs`;
-
-const FOOTER_COLS = [
-  {
-    title: "Product",
-    links: [
-      { label: "Overview",           to: "/product" },
-      { label: "Guided Assessment",  to: "/guided-assessment" },
-      { label: "Dataset Audit",      to: "/dataset-audit" },
-      { label: "Model Assessment",   to: "/model-assessment" },
-      { label: "Compliance Exports", to: "/compliance-exports" },
-    ],
-  },
-  {
-    title: "Platform",
-    links: [
-      { label: "Community Edition", to: "/community" },
-      { label: "Managed Cloud",     to: "/cloud" },
-      { label: "Security",          to: "/security" },
-      { label: "OpenAPI",           to: "/openapi" },
-      { label: "Pricing",           to: "/pricing" },
-    ],
-  },
-  {
-    title: "Developers",
-    links: [
-      { label: "GitHub",            href: GITHUB },
-      { label: "Contributor Guide", href: `${GITHUB}/blob/main/CONTRIBUTING.md` },
-      { label: "API Reference",     to: "/openapi" },
-      { label: "Assessment Recipes",to: "/developers" },
-      { label: "Model Adapters",    href: `${GITHUB}/blob/main/CONTRIBUTING.md` },
-    ],
-  },
-  {
-    title: "Ecosystem",
-    links: [
-      { label: "Prometheus-X BB04",    to: "/ecosystem" },
-      { label: "EDGE-Skills",          href: "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/how-to-participate/org-details/883807838/project/101123471/program/43152860/details" },
-      { label: "BB04 Technical Docs",  href: "https://prometheus-x-association.github.io/docs/t-ai/" },
-    ],
-  },
-  {
-    title: "Documentation",
-    links: [
-      { label: "Docs Hub",         to: "/docs" },
-      { label: "Self-host Guide",  to: "/self-host" },
-      { label: "Architecture",     href: `${DOCS}/saas-architecture.md` },
-      { label: "Security Model",   to: "/security" },
-      { label: "Data Governance",  href: `${DOCS}/data-governance.md` },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "License (MIT)",    href: `${GITHUB}/blob/main/LICENSE` },
-      { label: "Security Policy",  href: `${GITHUB}/blob/main/SECURITY.md` },
-      { label: "Governance",       href: `${DOCS}/data-governance.md` },
-      { label: "CITATION.cff",     href: `${GITHUB}/blob/main/CITATION.cff` },
-      { label: "Disclosure",       to: "/security" },
-    ],
-  },
-];
-
-function FooterLink({ link }: { link: { label: string; to?: string; href?: string } }) {
+// ── Footer link component ─────────────────────────────────────────────────
+function FooterLink({ link }: { link: { label: string; to?: string; externalId?: string } }) {
   const cls =
     "text-sm text-slate-500 hover:text-slate-300 transition-colors inline-flex items-center gap-1 focus-visible:outline-none focus-visible:underline";
-  if (link.to)
+
+  if (link.to) {
     return <Link to={link.to} className={cls}>{link.label}</Link>;
-  const ext = link.href && !link.href.startsWith("/");
-  return (
-    <a
-      href={link.href ?? "#"}
-      target={ext ? "_blank" : undefined}
-      rel={ext ? "noopener noreferrer" : undefined}
-      className={cls}
-    >
-      {link.label}
-      {ext && <ExternalLink size={10} className="opacity-30 flex-shrink-0" />}
-    </a>
-  );
+  }
+
+  if (link.externalId) {
+    const ext = EXTERNAL_LINKS[link.externalId as keyof typeof EXTERNAL_LINKS];
+    if (!ext) return null;
+    return (
+      <a
+        href={ext.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cls}
+        aria-label={`${ext.label} (opens in new tab)`}
+      >
+        {link.label}
+        <ExternalLinkIcon size={10} className="opacity-30 flex-shrink-0" />
+      </a>
+    );
+  }
+
+  return null;
 }
 
-// ── Mobile accordion col ─────────────────────────────────────────────────
-function FooterAccordion({ col }: { col: (typeof FOOTER_COLS)[0] }) {
+// ── Mobile accordion column ───────────────────────────────────────────────
+function FooterAccordion({ col }: { col: (typeof FOOTER_NAV)[0] }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border-b" style={{ borderColor: "rgba(203,213,225,0.10)" }}>
@@ -102,7 +50,10 @@ function FooterAccordion({ col }: { col: (typeof FOOTER_COLS)[0] }) {
           className={cn("transition-transform duration-200", open && "rotate-180")}
         />
       </button>
-      <AnimateWrapper open={open}>
+      <div
+        className="overflow-hidden transition-all duration-300"
+        style={{ maxHeight: open ? "400px" : "0", opacity: open ? 1 : 0 }}
+      >
         <ul className="pb-4 space-y-2.5">
           {col.links.map((link) => (
             <li key={link.label}>
@@ -110,35 +61,27 @@ function FooterAccordion({ col }: { col: (typeof FOOTER_COLS)[0] }) {
             </li>
           ))}
         </ul>
-      </AnimateWrapper>
-    </div>
-  );
-}
-
-function AnimateWrapper({ open, children }: { open: boolean; children: React.ReactNode }) {
-  return (
-    <div
-      className="overflow-hidden transition-all duration-300"
-      style={{ maxHeight: open ? "400px" : "0", opacity: open ? 1 : 0 }}
-    >
-      {children}
+      </div>
     </div>
   );
 }
 
 // ── Main footer ───────────────────────────────────────────────────────────
 export function PublicFooter() {
+  const edgeSkillsUrl  = EXTERNAL_LINKS.EDGE_SKILLS_EC_PROJECT.url;
+  const prometheusUrl  = EXTERNAL_LINKS.PROMETHEUS_X_TAI_DOCS.url;
+  const licenseUrl     = EXTERNAL_LINKS.AFFECTLOG_LICENSE.url;
+
   return (
     <footer
       style={{ background: "#070B1A", borderTop: "1px solid rgba(203,213,225,0.09)" }}
       aria-label="Site footer"
     >
-      {/* ── CTA Band ───────────────────────────────────────────── */}
+      {/* ── CTA Band ─────────────────────────────────────────────────── */}
       <div
         className="relative overflow-hidden"
         style={{ background: "#0B1224", borderBottom: "1px solid rgba(203,213,225,0.09)" }}
       >
-        {/* Grid */}
         <div
           className="absolute inset-0 pointer-events-none opacity-50"
           style={{
@@ -148,7 +91,6 @@ export function PublicFooter() {
           }}
           aria-hidden="true"
         />
-        {/* Glow */}
         <div
           className="absolute bottom-0 left-1/2 -translate-x-1/2 w-96 h-40 pointer-events-none"
           style={{ background: "radial-gradient(ellipse, rgba(103,232,249,0.07) 0%, transparent 70%)" }}
@@ -160,31 +102,32 @@ export function PublicFooter() {
             Start a privacy-preserving AI assessment workflow
           </h2>
           <p className="text-slate-400 mb-8 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-            Self-host the open-source core or request an AffectLog-managed environment for hosted operations,
-            onboarding, monitoring, and support.
+            Self-host the open-source core or request an AffectLog-managed environment for
+            hosted operations, onboarding, monitoring, and support.
           </p>
 
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               to="/request-access"
-              className="inline-flex items-center gap-2 font-semibold text-white px-6 py-3 rounded-xl transition-all duration-200 hover:-translate-y-px"
+              className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-xl transition-all duration-200 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40"
               style={{
                 background: "linear-gradient(135deg, #93C5FD 0%, #67E8F9 60%, #A7F3D0 100%)",
                 boxShadow: "0 4px 14px rgba(103,232,249,0.25)",
+                color: "#08111F",
               }}
             >
               Request Managed Access <ArrowRight size={15} />
             </Link>
             <Link
               to="/self-host"
-              className="inline-flex items-center gap-2 font-semibold text-slate-200 px-6 py-3 rounded-xl border transition-all duration-200 hover:bg-white/[0.06] hover:border-slate-400/40"
+              className="inline-flex items-center gap-2 font-semibold text-slate-200 px-6 py-3 rounded-xl border transition-all duration-200 hover:bg-white/[0.06] hover:border-slate-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40"
               style={{ borderColor: "rgba(203,213,225,0.22)", background: "rgba(255,255,255,0.04)" }}
             >
               <Server size={15} /> Deploy Community Edition
             </Link>
             <Link
               to="/docs"
-              className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white px-5 py-3 text-sm rounded-xl hover:bg-white/[0.04] transition-all"
+              className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white px-5 py-3 text-sm rounded-xl hover:bg-white/[0.04] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40"
             >
               View Documentation <ArrowRight size={13} />
             </Link>
@@ -192,10 +135,10 @@ export function PublicFooter() {
         </div>
       </div>
 
-      {/* ── Main footer body ───────────────────────────────────── */}
+      {/* ── Main body ────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 py-14">
 
-        {/* Brand row */}
+        {/* Brand + EU funding row */}
         <div className="flex flex-col md:flex-row md:items-start gap-8 mb-10">
           <div className="flex-shrink-0 max-w-xs">
             <Link to="/" className="inline-flex items-center gap-2.5 mb-3 group" aria-label="AffectLog">
@@ -215,12 +158,13 @@ export function PublicFooter() {
             </p>
             <div className="flex items-center gap-4 mt-4">
               <a
-                href={GITHUB}
+                href={EXTERNAL_LINKS.AFFECTLOG_REPO.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-300 transition-colors"
+                aria-label="AffectLog on GitHub (opens in new tab)"
               >
-                <Github size={14} /> GitHub
+                GitHub
               </a>
               <Link
                 to="/openapi"
@@ -231,7 +175,6 @@ export function PublicFooter() {
             </div>
           </div>
 
-          {/* EU funding note */}
           <div className="md:ml-auto max-w-sm">
             <p className="text-xs text-slate-600 leading-relaxed">
               This project has received funding from the Digital Europe Programme under the EDGE-Skills
@@ -240,32 +183,33 @@ export function PublicFooter() {
             </p>
             <div className="flex flex-wrap gap-3 mt-3">
               <a
-                href="https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/how-to-participate/org-details/883807838/project/101123471/program/43152860/details"
+                href={edgeSkillsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-slate-600 hover:text-slate-400 transition-colors flex items-center gap-1"
+                aria-label="EDGE-Skills EU Project (opens in new tab)"
               >
-                EDGE-Skills <ExternalLink size={9} />
+                EDGE-Skills <ExternalLinkIcon size={9} />
               </a>
               <span className="text-slate-700" aria-hidden="true">·</span>
               <a
-                href="https://prometheus-x-association.github.io/docs/t-ai/"
+                href={prometheusUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-slate-600 hover:text-slate-400 transition-colors flex items-center gap-1"
+                aria-label="Prometheus-X BB04 Technical Docs (opens in new tab)"
               >
-                Prometheus-X BB04 <ExternalLink size={9} />
+                Prometheus-X BB04 <ExternalLinkIcon size={9} />
               </a>
             </div>
           </div>
         </div>
 
-        {/* Accent line */}
         <div className="accent-line-trust mb-10" role="separator" />
 
         {/* Link columns — desktop */}
-        <nav className="hidden md:grid grid-cols-3 lg:grid-cols-6 gap-8 mb-12" aria-label="Footer links">
-          {FOOTER_COLS.map((col) => (
+        <nav className="hidden md:grid grid-cols-3 lg:grid-cols-5 gap-8 mb-12" aria-label="Footer links">
+          {FOOTER_NAV.map((col) => (
             <div key={col.title}>
               <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">
                 {col.title}
@@ -282,8 +226,8 @@ export function PublicFooter() {
         </nav>
 
         {/* Link columns — mobile accordion */}
-        <nav className="md:hidden mb-8 divide-y-0" aria-label="Footer links mobile">
-          {FOOTER_COLS.map((col) => (
+        <nav className="md:hidden mb-8" aria-label="Footer links mobile">
+          {FOOTER_NAV.map((col) => (
             <FooterAccordion key={col.title} col={col} />
           ))}
         </nav>
@@ -296,10 +240,11 @@ export function PublicFooter() {
           <p>
             AffectLog Community Edition is released under the{" "}
             <a
-              href={`${GITHUB}/blob/main/LICENSE`}
+              href={licenseUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-slate-500 hover:text-slate-400 underline underline-offset-2"
+              aria-label="MIT License (opens in new tab)"
             >
               MIT License
             </a>

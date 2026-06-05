@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /admin/
+Disallow: /platform/
+Disallow: /login
+Disallow: /register
+Disallow: /activate
+Disallow: /awaiting-approval
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://affectlog.ai/sitemap.xml

@@ -6,13 +6,24 @@ export default defineConfig({
 
   server: {
     proxy: {
-      // Forward /api/* directly to FastAPI — routes include the /api prefix.
+      // Swagger UI lives at /docs on FastAPI (default docs_url).
+      // The frontend also has a /docs route, so we expose the Swagger UI
+      // via /api/docs and rewrite the path before forwarding to the backend.
+      "/api/docs": {
+        target: "http://localhost:8000",
+        rewrite: (path) => path.replace(/^\/api\/docs/, "/docs"),
+      },
+      "/api/redoc": {
+        target: "http://localhost:8000",
+        rewrite: (path) => path.replace(/^\/api\/redoc/, "/redoc"),
+      },
+      // Forward all other /api/* requests to FastAPI (routes include /api prefix).
       "/api": { target: "http://localhost:8000" },
-      // FastAPI's swagger UI fetches /openapi.json relative to the browser origin.
+      // FastAPI's openapi.json is at /openapi.json on the backend.
       "/openapi.json": { target: "http://localhost:8000" },
-      // FastAPI OAuth2 redirect (used by swagger UI try-it auth flow)
+      // FastAPI OAuth2 redirect (swagger UI try-it auth flow).
       "/docs/oauth2-redirect": { target: "http://localhost:8000" },
-      "/v1":     { target: "http://localhost:8000" },
+      "/v1":      { target: "http://localhost:8000" },
       "/healthz": { target: "http://localhost:8000" },
     },
   },

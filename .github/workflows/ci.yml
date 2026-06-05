@@ -7,8 +7,9 @@ on:
     branches: [main]
 
 jobs:
+  # ── Backend quality ────────────────────────────────────────────────────────
   lint:
-    name: Lint & Format Check
+    name: Python Lint & Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +21,7 @@ jobs:
       - run: ruff format --check src/ tests/ scripts/
 
   typecheck:
-    name: Type Check (mypy)
+    name: Python Type Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,7 +54,7 @@ jobs:
       - run: pytest tests/integration/ -v --tb=short -m "not slow"
 
   security:
-    name: Security Scan (Bandit + pip-audit)
+    name: Security Scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -77,25 +78,92 @@ jobs:
         run: |
           python3 -c "
           from affectlog.api.main import app
-          import json
+          import json, yaml
           spec = app.openapi()
           with open('docs/openapi.yaml', 'w') as f:
-              import yaml
               yaml.dump(spec, f, allow_unicode=True)
           print('OpenAPI spec exported')
           " || true
       - run: bash scripts/validate_openapi.sh || true
 
-  frontend-build:
-    name: Frontend Build
+  # ── Frontend quality ───────────────────────────────────────────────────────
+  frontend-quality:
+    name: Frontend Quality
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/affectlog/frontend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Install & build frontend
+          cache: "npm"
+          cache-dependency-path: src/affectlog/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Route validation
+        run: npm run validate:routes
+      - name: Link validation
+        run: npm run validate:links
+      - name: CTA validation
+        run: npm run validate:ctas
+      - name: Navigation validation
+        run: npm run validate:nav
+      - name: Docs link validation
+        run: npm run validate:docs
+      - name: Sitemap validation
+        run: npm run validate:sitemap
+
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    needs: frontend-quality
+    defaults:
+      run:
         working-directory: src/affectlog/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: src/affectlog/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: src/affectlog/frontend/dist/
+          retention-days: 7
+
+  # ── E2E tests ──────────────────────────────────────────────────────────────
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    needs: frontend-build
+    defaults:
+      run:
+        working-directory: src/affectlog/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: src/affectlog/frontend/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Serve and run E2E tests
         run: |
-          npm install
-          npm run build || true
+          npx serve dist -p 3000 &
+          sleep 3
+          npx playwright test ../../tests/e2e/navigation.spec.ts ../../tests/e2e/footer-links.spec.ts ../../tests/e2e/cta-links.spec.ts ../../tests/e2e/route-guards.spec.ts --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
