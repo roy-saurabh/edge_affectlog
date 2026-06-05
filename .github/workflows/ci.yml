@@ -157,6 +157,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - name: Serve and run E2E tests
+        env:
+          NODE_PATH: ${{ github.workspace }}/src/affectlog/frontend/node_modules
         run: |
           npx serve dist -p 3000 --single &
           sleep 3
