@@ -5,14 +5,13 @@ import {
   ArrowRight, CheckCircle2, ExternalLink, Github,
   Server, Cloud, Database, ShieldCheck, BarChart2,
   Cpu, FileText, Share2, Code2, Lock, Layers,
-  Terminal, Package, FlaskConical, Eye, Network,
+  Package, FlaskConical, Eye, Network,
   ClipboardList, Globe, Fingerprint, Activity,
 } from "lucide-react";
 import { PublicHeader } from "../../components/public/PublicHeader";
 import { PublicFooter } from "../../components/public/PublicFooter";
 import { HeroDataSpaceVisual } from "../../design-system/visuals/HeroDataSpaceVisual";
 import { EcosystemLifecycleVisual } from "../../design-system/visuals/EcosystemLifecycleVisual";
-import { DatasetToModelPipeline } from "../../components/visuals/DatasetToModelPipeline";
 import { XapiEventStream } from "../../components/visuals/XapiEventStream";
 import { FairnessMetricRadar } from "../../components/visuals/FairnessMetricRadar";
 import { AuditArtifactStack } from "../../components/visuals/AuditArtifactStack";

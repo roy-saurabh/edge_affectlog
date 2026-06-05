@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   BookOpen, ArrowRight, ExternalLink, Server, Shield,
-  Users, Code2, BookMarked, Cpu, Activity, Wrench,
+  Code2, BookMarked, Cpu, Activity, Wrench,
 } from "lucide-react";
 import { PublicHeader } from "../../components/public/PublicHeader";
 import { PublicFooter } from "../../components/public/PublicFooter";

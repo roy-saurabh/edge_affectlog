@@ -1,9 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import {
-  Github, ArrowRight, Code2, Package, Cpu, BarChart2,
-  Share2, Eye, FileText, ShieldCheck, Terminal, BookOpen,
-  GitBranch, Wrench, ExternalLink,
+  Github, Code2, Package, Cpu, BarChart2,
+  Share2, Eye, FileText, ShieldCheck,
+  ExternalLink,
 } from "lucide-react";
 import { PublicHeader } from "../../components/public/PublicHeader";
 import { PublicFooter } from "../../components/public/PublicFooter";

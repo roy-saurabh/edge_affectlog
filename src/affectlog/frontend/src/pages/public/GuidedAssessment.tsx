@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Wand2, ArrowRight, CheckCircle2, AlertTriangle, Lock,
+  Wand2, ArrowRight, AlertTriangle, Lock,
   Database, ShieldCheck, BarChart2, FileText, Cpu,
 } from "lucide-react";
 import { PublicHeader } from "../../components/public/PublicHeader";
@@ -107,7 +107,6 @@ function WizardSteps() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {WIZARD_STEPS.map((s, i) => {
-            const Icon = s.icon;
             return (
               <FadeUp key={s.step} delay={i * 0.04}>
                 <div
