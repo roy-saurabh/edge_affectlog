@@ -8,12 +8,13 @@ import http.client
 import ipaddress
 import json
 import logging
+import os
 import socket
 import ssl
 import tempfile
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, quote, urlencode, urlparse
 
 from affectlog.capabilities.formats import FORMAT_BY_ID
 from affectlog.config import get_settings
@@ -79,7 +80,12 @@ def _fetch_url_to_tempfile(url: str) -> tuple[Path, int] | tuple[None, str]:
     if any(ip in net for net in _PRIVATE_NETWORKS):
         return None, "URL resolves to a private or reserved address."
 
-    path_qs = (parsed.path or "/") + (f"?{parsed.query}" if parsed.query else "")
+    # Re-encode path and query from the user-supplied URL so that crafted URL
+    # components (e.g. CRLF sequences, unusual encodings) cannot redirect the
+    # request or inject headers — satisfies CodeQL py/partial-ssrf.
+    safe_path = quote(parsed.path or "/", safe="/:@!$&'()*+,;=")
+    safe_query = urlencode(parse_qsl(parsed.query, keep_blank_values=True)) if parsed.query else ""
+    path_qs = safe_path + (f"?{safe_query}" if safe_query else "")
 
     conn: http.client.HTTPConnection | None = None
     try:
@@ -91,6 +97,7 @@ def _fetch_url_to_tempfile(url: str) -> tuple[Path, int] | tuple[None, str]:
         raw_sock = socket.create_connection((ip_str, port), timeout=30)
         if parsed.scheme == "https":
             ctx = ssl.create_default_context()
+            ctx.minimum_version = ssl.TLSVersion.TLSv1_2
             tls_sock = ctx.wrap_socket(raw_sock, server_hostname=host)
             conn = http.client.HTTPConnection(ip_str, port=port, timeout=30)
             conn.sock = tls_sock
@@ -367,18 +374,23 @@ def inspect(req: InspectInputRequest) -> InspectInputResponse:
         suffix = Path(urlparse(path_str).path).suffix.lower() or path.suffix.lower()
     else:
         _s = get_settings()
-        _allowed_bases = [
-            Path(_s.data_dir).resolve(),
-            Path(_s.runs_dir).resolve(),
-            Path(tempfile.gettempdir()).resolve(),
+        # Build the allowed prefixes as plain strings so that CodeQL's
+        # os.path.realpath + startswith barrier guard recognises the sanitisation.
+        _allowed_prefixes = [
+            str(Path(_s.data_dir).resolve()),
+            str(Path(_s.runs_dir).resolve()),
+            str(Path(tempfile.gettempdir()).resolve()),
         ]
-        resolved = Path(path_str).resolve()
-        if not any(resolved.is_relative_to(base) for base in _allowed_bases):
+        resolved_str = os.path.realpath(path_str)
+        if not any(
+            resolved_str == prefix or resolved_str.startswith(prefix + os.sep)
+            for prefix in _allowed_prefixes
+        ):
             return InspectInputResponse(
                 is_supported=False,
                 unsupported_reason="Dataset path is outside the allowed directories.",
             )
-        path = resolved
+        path = Path(resolved_str)
         if not path.exists():
             return InspectInputResponse(
                 is_supported=False,

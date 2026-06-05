@@ -82,6 +82,7 @@ def _resolve_dataset_path(dataset_path: str, run_dir: Path) -> Path:
             raw_sock = socket.create_connection((ip_str, port), timeout=60)
             if parsed.scheme == "https":
                 ctx = ssl.create_default_context()
+                ctx.minimum_version = ssl.TLSVersion.TLSv1_2
                 tls_sock = ctx.wrap_socket(raw_sock, server_hostname=host)
                 conn = http.client.HTTPConnection(ip_str, port=port, timeout=60)
                 conn.sock = tls_sock
