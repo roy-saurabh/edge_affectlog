@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ShieldCheck, FileText, Download, CheckCircle2, ChevronRight } from "lucide-react";
-import { getComplianceGraph, getAuditSop, listRuns } from "../api";
+import { getComplianceGraph, getAuditSop } from "../api";
 
 const EU_AI_CHECKLIST = [
   { id: "1.a", text: "AI system purpose and intended use documented", category: "Purpose" },

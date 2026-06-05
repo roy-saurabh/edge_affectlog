@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FlaskConical, Database, ShieldCheck, Cpu, ArrowRight, TrendingUp,
-  Wand2, Activity, BarChart2, CheckCircle2, AlertTriangle, Clock,
+  Wand2, Activity, BarChart2, AlertTriangle,
   FileText, Package, PlayCircle,
 } from "lucide-react";
 import { checkHealth, listRuns, type RunEntry } from "../api";
@@ -272,7 +272,7 @@ export default function AppDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {runs.map((r, i) => (
+                {runs.map((r, _i) => (
                   <tr
                     key={r.run_id}
                     className="border-t transition-colors hover:bg-white/[0.02]"

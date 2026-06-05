@@ -160,7 +160,7 @@ jobs:
         run: |
           npx serve dist -p 3000 --single &
           sleep 3
-          npx playwright test ../../tests/e2e/navigation.spec.ts ../../tests/e2e/footer-links.spec.ts ../../tests/e2e/cta-links.spec.ts ../../tests/e2e/route-guards.spec.ts --reporter=html,line
+          npx playwright test
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
