@@ -65,7 +65,7 @@ export default function Models() {
 
       {/* Quick links */}
       <div className="flex gap-3">
-        <a href="/docs#/Models" target="_blank" rel="noopener" className="btn-secondary">
+        <a href="/api/docs#tag/Models" target="_blank" rel="noopener" className="btn-secondary">
           <ExternalLink size={14} /> Swagger UI → /v1/models
         </a>
         <a href="/openapi.json" target="_blank" rel="noopener" className="btn-ghost">
