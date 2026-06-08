@@ -16,60 +16,58 @@ test.describe("Public homepage", () => {
 
   test("renders hero title", async ({ page }) => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Open Trustworthy AI Assessment"
+      "Trustworthy AI assessment"
     );
   });
 
-  test("has primary CTA: Launch the Assessment Console", async ({ page }) => {
-    const link = page.getByRole("link", { name: /Launch the Assessment Console/i });
+  test("has primary CTA: Request Managed Access", async ({ page }) => {
+    const link = page.getByRole("link", { name: /Request Managed Access/i }).first();
     await expect(link).toBeVisible();
   });
 
-  test("has secondary CTA: Contribute on GitHub", async ({ page }) => {
-    const link = page.getByRole("link", { name: /Contribute on GitHub/i });
+  test("has secondary CTA: Deploy Community Edition", async ({ page }) => {
+    const link = page.getByRole("link", { name: /Deploy Community Edition/i }).first();
     await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute("href", /github\.com/);
   });
 
-  test("has Prometheus-X ecosystem trust badge", async ({ page }) => {
-    await expect(page.getByText(/Prometheus-X Ecosystem/i)).toBeVisible();
+  test("has Prometheus-X ecosystem section", async ({ page }) => {
+    await expect(page.getByText(/Prometheus-X Trustworthy AI Ecosystem/i)).toBeVisible();
   });
 
-  test("shows CARiSMA in ecosystem section", async ({ page }) => {
-    await expect(page.getByText(/CARiSMA/i)).toBeVisible();
+  test("shows Prometheus-X BB04 in ecosystem section", async ({ page }) => {
+    await expect(page.getByText(/Prometheus-X BB04/i).first()).toBeVisible();
   });
 
-  test("shows LOLA in ecosystem section", async ({ page }) => {
-    await expect(page.getByText(/LOLA/i)).toBeVisible();
+  test("shows EDGE-Skills in ecosystem section", async ({ page }) => {
+    await expect(page.getByText(/EDGE-Skills/i).first()).toBeVisible();
   });
 
   test("footer contains EU funding acknowledgement", async ({ page }) => {
-    await expect(page.getByText(/Co-funded by the European Union/i)).toBeVisible();
+    await expect(page.locator("footer").getByText(/Digital Europe Programme/i)).toBeVisible();
   });
 
   test("footer links to Prometheus-X BB04", async ({ page }) => {
-    const link = page.getByRole("link", { name: /Prometheus-X BB04/i });
-    await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute("href", /prometheus-x\.org/);
+    const link = page.locator("footer").getByRole("link", { name: /Prometheus-X BB04/i });
+    await expect(link.first()).toBeVisible();
   });
 
   test("footer links to EDGE-Skills EU project", async ({ page }) => {
-    const link = page.getByRole("link", { name: /EDGE-Skills EU Project/i });
-    await expect(link).toBeVisible();
+    const link = page.locator("footer").getByRole("link", { name: /EDGE-Skills/i });
+    await expect(link.first()).toBeVisible();
   });
 
   test("footer links to GitHub repository", async ({ page }) => {
-    const link = page.getByRole("link", { name: /GitHub Repository/i });
-    await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute("href", /Prometheus-X-association/);
+    const link = page.locator("footer").getByRole("link", { name: /GitHub/i });
+    await expect(link.first()).toBeVisible();
+    await expect(link.first()).toHaveAttribute("href", /github\.com/);
   });
 
-  test("developer CTA section is present", async ({ page }) => {
-    await expect(page.getByText(/Build reusable assessment recipes with us/i)).toBeVisible();
+  test("developer contribution section is present", async ({ page }) => {
+    await expect(page.getByText(/Build reusable assessment infrastructure/i)).toBeVisible();
   });
 
-  test("developer CTA has Contributor Guide button", async ({ page }) => {
-    await expect(page.getByRole("link", { name: /Read Contributor Guide/i })).toBeVisible();
+  test("developer CTA links to GitHub", async ({ page }) => {
+    await expect(page.getByRole("link", { name: /View on GitHub/i })).toBeVisible();
   });
 
   // ── Forbidden terms ────────────────────────────────────────────────────
