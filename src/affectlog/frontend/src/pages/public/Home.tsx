@@ -13,8 +13,6 @@ import { PublicFooter } from "../../components/public/PublicFooter";
 import { HeroDataSpaceVisual } from "../../design-system/visuals/HeroDataSpaceVisual";
 import { EcosystemLifecycleVisual } from "../../design-system/visuals/EcosystemLifecycleVisual";
 import { XapiEventStream } from "../../components/visuals/XapiEventStream";
-import { FairnessMetricRadar } from "../../components/visuals/FairnessMetricRadar";
-import { AuditArtifactStack } from "../../components/visuals/AuditArtifactStack";
 import { CTABand } from "../../design-system/primitives/CTAGroup";
 import { GridBackground, GlowOrb } from "../../design-system/primitives/GridBackground";
 

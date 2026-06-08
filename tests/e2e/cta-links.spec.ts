@@ -69,15 +69,16 @@ test.describe("External CTA safety", () => {
 });
 
 test.describe("Request Access form page", () => {
-  test("has submit button", async ({ page }) => {
+  test("has primary action button on first step", async ({ page }) => {
     await page.goto(`${BASE}/request-access`);
-    const submitBtn = page.getByRole("button", { name: /Submit/i });
-    await expect(submitBtn).toBeVisible();
+    // The form is a multi-step wizard; "Continue" is the first visible action
+    const continueBtn = page.getByRole("button", { name: /Continue/i });
+    await expect(continueBtn).toBeVisible();
   });
 
-  test("has compare editions link", async ({ page }) => {
+  test("has community edition alternative link", async ({ page }) => {
     await page.goto(`${BASE}/request-access`);
-    const link = page.getByRole("link", { name: /Compare/i });
+    const link = page.getByRole("link", { name: /Community Edition/i }).first();
     await expect(link).toBeVisible();
   });
 });
