@@ -14,11 +14,14 @@ import logging
 import uuid
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.openapi.docs import get_swagger_ui_html, get_swagger_ui_oauth2_redirect_html
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -66,6 +69,26 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 
 settings = get_settings()
 
+# ── Swagger UI static asset resolution ────────────────────────────────────
+# In production (Docker), swagger-ui-dist files are downloaded during image
+# build into /app/static/swagger-ui, so docs work without CDN access (CDN
+# URLs are blocked by upstream CSP in some hosting environments).
+_SWAGGER_DIR = Path("/app/static/swagger-ui")
+_SWAGGER_LOCAL = (
+    (_SWAGGER_DIR / "swagger-ui-bundle.js").exists()
+    and (_SWAGGER_DIR / "swagger-ui.css").exists()
+)
+_SWAGGER_JS = (
+    "/static/swagger-ui/swagger-ui-bundle.js"
+    if _SWAGGER_LOCAL
+    else "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"
+)
+_SWAGGER_CSS = (
+    "/static/swagger-ui/swagger-ui.css"
+    if _SWAGGER_LOCAL
+    else "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css"
+)
+
 app = FastAPI(
     title="AffectLog – Trustworthy AI Assessment",
     description=(
@@ -89,6 +112,8 @@ app = FastAPI(
     },
     lifespan=lifespan,
     openapi_version="3.1.0",
+    docs_url=None,   # served by custom endpoint below
+    redoc_url=None,
 )
 
 # ── Rate limiting ─────────────────────────────────────────────────────────
@@ -137,6 +162,27 @@ async def generic_error_handler(_request: Request, exc: Exception) -> JSONRespon
         status_code=500,
         content={"detail": "An internal error occurred. Please contact support."},
     )
+
+
+# ── Docs (self-hosted swagger UI to avoid CDN CSP issues) ─────────────────
+if _SWAGGER_LOCAL:
+    app.mount("/static/swagger-ui", StaticFiles(directory=str(_SWAGGER_DIR)), name="swagger-static")
+
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html() -> HTMLResponse:
+    return get_swagger_ui_html(
+        openapi_url="/openapi.json",
+        title=f"{app.title} – Swagger UI",
+        oauth2_redirect_url="/docs/oauth2-redirect",
+        swagger_js_url=_SWAGGER_JS,
+        swagger_css_url=_SWAGGER_CSS,
+    )
+
+
+@app.get("/docs/oauth2-redirect", include_in_schema=False)
+async def swagger_ui_redirect() -> HTMLResponse:
+    return get_swagger_ui_oauth2_redirect_html()
 
 
 # ── Routers ───────────────────────────────────────────────────────────────

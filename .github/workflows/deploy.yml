@@ -195,7 +195,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 15m
+          command_timeout: 20m
           script: |
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
@@ -203,8 +203,9 @@ jobs:
             # Authenticate with GHCR using the workflow token (valid for this run)
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-            # Pull new images (all three services in parallel)
-            docker compose pull --quiet
+            # Pull only the app images — postgres/redis use pinned upstream tags and
+            # are never rebuilt, so pulling them wastes time on every deploy.
+            docker compose pull --quiet api worker frontend
 
             # Rolling restart — bring up new containers, remove old ones
             docker compose up -d --remove-orphans --pull never
@@ -213,12 +214,18 @@ jobs:
             # (VPS has limited storage — this is critical)
             docker image prune -f
 
-            # Wait for API to finish startup (runs DB migrations on first boot)
-            echo "Waiting for services to be healthy..."
-            sleep 30
-
-            # Health check via HTTPS
-            curl -fsS --max-time 15 https://trustworthyai.affectlog.com/healthz \
-              || (echo "=== Container logs ===" && docker compose logs --tail=60 && exit 1)
+            # Poll until the API is healthy (up to 90 s) instead of a fixed sleep.
+            echo "Waiting for API to be healthy..."
+            for i in $(seq 1 18); do
+              if curl -fsS --max-time 10 https://trustworthyai.affectlog.com/healthz > /dev/null 2>&1; then
+                echo "API healthy after ~$((i * 5))s"
+                break
+              fi
+              if [ "$i" -eq 18 ]; then
+                echo "=== Container logs ===" && docker compose logs --tail=60 && exit 1
+              fi
+              echo "  attempt $i/18 — retrying in 5s..."
+              sleep 5
+            done
 
             echo "Deploy complete: $(date)"
