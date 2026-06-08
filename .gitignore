@@ -103,6 +103,9 @@ site/
 # Benchmark artefacts
 benchmark_results/
 
+# Progress / working notes — local only
+progress/
+
 # Large data artefacts (prevent accidental commit)
 *.jsonl
 !data/samples/*.jsonl
