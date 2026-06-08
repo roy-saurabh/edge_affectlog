@@ -116,20 +116,20 @@ test.describe("Content quality — public pages", () => {
 
   for (const route of PUBLIC_PAGES) {
     test(`${route} has H1`, async ({ page }) => {
-      await page.goto(`${BASE_URL}${route}`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE_URL}${route}`, { waitUntil: "networkidle" });
       const h1 = page.getByRole("heading", { level: 1 });
       await expect(h1).toBeVisible();
     });
 
     test(`${route} has no forbidden internal terms`, async ({ page }) => {
-      await page.goto(`${BASE_URL}${route}`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE_URL}${route}`, { waitUntil: "networkidle" });
       const body = await page.textContent("body");
       expect(body).not.toMatch(/\bD3\.7\b/);
       expect(body).not.toMatch(/\bTRL\b/);
     });
 
     test(`${route} has primary CTA link`, async ({ page }) => {
-      await page.goto(`${BASE_URL}${route}`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE_URL}${route}`, { waitUntil: "networkidle" });
       const links = await page.getByRole("link").count();
       expect(links).toBeGreaterThan(0);
     });
@@ -140,7 +140,7 @@ test.describe("Content quality — public pages", () => {
 test.describe("Visual system — dark pastel theme", () => {
   test("homepage body background is dark", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
     const bgColor = await page.evaluate(() => {
       return getComputedStyle(document.body).backgroundColor;
     });
@@ -150,7 +150,7 @@ test.describe("Visual system — dark pastel theme", () => {
 
   test("Inter font applied globally", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
     const fontFamily = await page.evaluate(() => {
       return getComputedStyle(document.body).fontFamily;
     });
@@ -159,14 +159,14 @@ test.describe("Visual system — dark pastel theme", () => {
 
   test("header is visible on homepage", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
     const header = page.locator("header");
     await expect(header).toBeVisible();
   });
 
   test("focus ring visible on interactive element", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
     await page.keyboard.press("Tab");
     const focused = await page.evaluate(() => document.activeElement?.tagName);
     expect(focused).toBeTruthy();
@@ -174,21 +174,21 @@ test.describe("Visual system — dark pastel theme", () => {
 
   test("hero has accessible name or role", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
     const hero = page.locator("section").first();
     await expect(hero).toBeVisible();
   });
 
   test("primary CTA button accessible name present", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
     const cta = page.getByRole("link", { name: /Request Managed Access/i });
     await expect(cta).toBeVisible();
   });
 
   test("skip-to-content link exists", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
     const skip = page.locator("a.skip-to-content");
     await expect(skip).toBeAttached();
   });
@@ -198,7 +198,7 @@ test.describe("Visual system — dark pastel theme", () => {
 test.describe("Responsive — mobile drawer", () => {
   test("hamburger button opens mobile menu", async ({ page }) => {
     await page.setViewportSize(MOBILE);
-    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
     const menuButton = page.getByRole("button", { name: /open menu/i });
     await expect(menuButton).toBeVisible();
     await menuButton.click();

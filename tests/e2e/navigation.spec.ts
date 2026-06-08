@@ -47,9 +47,9 @@ test.describe("Public route smoke tests", () => {
 test.describe("Public route H1 checks", () => {
   for (const { path } of PUBLIC_ROUTES) {
     test(`${path} has exactly one H1`, async ({ page }) => {
-      await page.goto(`${BASE}${path}`);
-      const h1s = await page.locator("h1").count();
-      expect(h1s).toBeGreaterThanOrEqual(1);
+      await page.goto(`${BASE}${path}`, { waitUntil: "networkidle" });
+      const h1 = page.getByRole("heading", { level: 1 });
+      await expect(h1).toBeVisible();
     });
   }
 });
@@ -58,6 +58,7 @@ test.describe("Redirects", () => {
   for (const [from, to] of REDIRECTS) {
     test(`${from} redirects to ${to}`, async ({ page }) => {
       await page.goto(`${BASE}${from}`);
+      await page.waitForURL(`**${to}**`, { timeout: 10_000 });
       expect(page.url()).toContain(to);
     });
   }

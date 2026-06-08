@@ -48,7 +48,7 @@ test.describe("Footer internal links", () => {
 
 test.describe("Footer external links", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(BASE);
+    await page.goto(BASE, { waitUntil: "networkidle" });
   });
 
   test("external links have target=_blank", async ({ page }) => {

@@ -900,7 +900,7 @@ function FinalCTA() {
 // ── PAGE ASSEMBLY ──────────────────────────────────────────────────────────
 export default function Home() {
   return (
-    <div style={{ background: "#070B1A", color: "#F8FAFC", minHeight: "100vh" }}>
+    <div style={{ background: "#070B1A", color: "#F8FAFC", minHeight: "100vh", overflowX: "hidden" }}>
       <PublicHeader />
       <main id="main-content">
         <Hero />
