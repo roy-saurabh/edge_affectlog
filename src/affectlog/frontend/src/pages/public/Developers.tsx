@@ -182,7 +182,7 @@ function ArchitectureGuide() {
     { label: "Recipes are YAML-only, no secrets",color: "#67E8F9" },
     { label: "All tests run without real datasets",color: "#C4B5FD" },
     { label: "OpenAPI spec updated with endpoints",color: "#93C5FD" },
-    { label: "No TRL or D-numbered references",  color: "#FCD34D" },
+    { label: "No internal project labels in public copy", color: "#FCD34D" },
   ];
 
   return (

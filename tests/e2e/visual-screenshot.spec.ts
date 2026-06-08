@@ -182,7 +182,7 @@ test.describe("Visual system — dark pastel theme", () => {
   test("primary CTA button accessible name present", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
     await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
-    const cta = page.getByRole("link", { name: /Request Managed Access/i });
+    const cta = page.getByRole("link", { name: /Request Managed Access/i }).first();
     await expect(cta).toBeVisible();
   });
 
