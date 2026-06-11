@@ -106,6 +106,10 @@ benchmark_results/
 # Progress / working notes — local only
 progress/
 
+# Internal pricing and costing documents — never publish
+docs/internal-aws-costing.md
+docs/client-pricing.md
+
 # Large data artefacts (prevent accidental commit)
 *.jsonl
 !data/samples/*.jsonl
