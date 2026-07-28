@@ -156,6 +156,9 @@ jobs:
         run: npm run typecheck
         continue-on-error: true
 
+      - name: Same-origin navigation tests
+        run: npm run test:security
+
       - name: Production build
         run: npm run build
 
